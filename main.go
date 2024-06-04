@@ -67,9 +67,7 @@ func main() {
 			if hostname == "" {
 				return c.String(400, "missing hostname")
 			}
-			if len(myip) == 0 || myip[0] == "" {
-				myip = []string{c.RealIP()}
-			}
+			myip = append(myip, c.RealIP())
 			records = append(records, record{
 				Hostname: hostname,
 				IP:       myip,
