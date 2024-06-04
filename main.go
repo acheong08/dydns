@@ -54,7 +54,7 @@ func main() {
 					return c.String(401, "badauth")
 				}
 				if userpass[0] != username || userpass[1] != password {
-					log.Printf("Username and password not matched: %s:%s", userpass[0], userpass[1])
+					log.Printf("Username and password not matched:\nUsername:%s!=%s\nPassword:%s!=%s", userpass[0], username, userpass[1], password)
 					return c.String(401, "badauth")
 				}
 				return next(c)
@@ -81,6 +81,9 @@ func main() {
 			limit, err := strconv.Atoi(c.QueryParam("limit"))
 			if err != nil || limit == 0 {
 				limit = 10
+			}
+			if len(records) < limit {
+				return c.JSON(200, records)
 			}
 			return c.JSON(200, records[len(records)-limit:])
 		})
