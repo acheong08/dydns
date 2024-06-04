@@ -81,10 +81,15 @@ func main() {
 			if err != nil || limit == 0 {
 				limit = 10
 			}
+			offset, err := strconv.Atoi(c.QueryParam("offset"))
+			if err != nil || offset == 0 {
+				offset = 0
+			}
 			if len(records) < limit {
 				return c.JSON(200, records)
 			}
-			return c.JSON(200, records[len(records)-limit:])
+			// Return from the back of the list with offset
+			return c.JSON(200, records[len(records)-(limit+offset):len(records)-offset])
 		})
 
 		return e.Start(":2005")
