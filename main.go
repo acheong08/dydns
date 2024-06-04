@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/base64"
+	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -33,22 +35,27 @@ func main() {
 				// Get authorization
 				auth := strings.Split(c.Request().Header.Get("Authorization"), " ")
 				if len(auth) != 2 {
-					return c.String(401, "Unauthorized")
+					log.Println("No auth header")
+					return c.String(401, "badauth")
 				}
 				if auth[0] != "Basic" {
-					return c.String(401, "Unsupported authorization type")
+					log.Printf("Unsupported auth type: %s", auth[0])
+					return c.String(401, "badauth")
 				}
 				// Base64 decode
 				decoded, err := base64.StdEncoding.DecodeString(auth[1])
 				if err != nil {
-					return c.String(401, "Invalid authorization")
+					log.Printf("Failed to decode auth: %s", err)
+					return c.String(401, "badauth")
 				}
 				userpass := strings.Split(string(decoded), ":")
 				if len(userpass) != 2 {
-					return c.String(401, "Missing username or password")
+					log.Printf("Invalid userpass: %s", userpass)
+					return c.String(401, "badauth")
 				}
 				if userpass[0] != username || userpass[1] != password {
-					return c.String(401, "Invalid username or password")
+					log.Printf("Username and password not matched: %s:%s", userpass[0], userpass[1])
+					return c.String(401, "badauth")
 				}
 				return next(c)
 			}
@@ -67,7 +74,7 @@ func main() {
 				Hostname: hostname,
 				IP:       myip,
 			})
-			return c.String(200, "")
+			return c.String(200, fmt.Sprintf("good %s", myip[0]))
 		})
 
 		e.GET("/nic/fetch", func(c echo.Context) error {
@@ -78,7 +85,10 @@ func main() {
 			return c.JSON(200, records[len(records)-limit:])
 		})
 
-		return nil
+		return e.Start(":2005")
 	})
-	cli.Run()
+	err := cli.Run()
+	if err != nil {
+		panic(err)
+	}
 }
