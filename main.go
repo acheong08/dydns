@@ -88,6 +88,9 @@ func main() {
 			if len(records) < limit {
 				return c.JSON(200, records)
 			}
+			if len(records)-(limit+offset) < 0 {
+				return c.String(400, "offset out of range")
+			}
 			// Return from the back of the list with offset
 			return c.JSON(200, records[len(records)-(limit+offset):len(records)-offset])
 		})
