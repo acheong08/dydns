@@ -74,6 +74,7 @@ func main() {
 				Hostname: hostname,
 				IP:       myip,
 			})
+			log.Printf("Record added %v", records[len(records)-1])
 			return c.String(200, fmt.Sprintf("good %s", myip[0]))
 		})
 
